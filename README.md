@@ -8,10 +8,14 @@
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-UI-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Academic%20Demo-success?style=for-the-badge)
 
-**Student:** Ninh Duy Đức.
-**Student ID:** 11245860.
-**Class:** DSEB 66.
-**GitHub Repository:** https://github.com/Duc-dev222/Restaurant-Management-System.
+**Student:** Ninh Duy Đức.  
+
+**Student ID:** 11245860.  
+
+**Class:** DSEB 66.  
+
+**GitHub Repository:** https://github.com/Duc-dev222/Restaurant-Management-System.  
+
 **YouTube Presentation:** *(to be added before submission)*.
 
 ---
