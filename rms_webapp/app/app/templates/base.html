@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}RMS{% endblock %} - Nhà hàng</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+{% if session.get('user_id') %}
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><i class="bi bi-cup-hot-fill"></i></div>
+    <div>
+      <div class="logo-title">RestaurantMS</div>
+      <div class="logo-sub">Management System</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">Tổng quan</div>
+    <a href="{{ url_for('dashboard.index') }}"
+       class="nav-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+      <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+    </a>
+
+    <div class="nav-section">Quản lý</div>
+    <a href="{{ url_for('customers.index') }}"
+       class="nav-link {% if request.blueprint == 'customers' %}active{% endif %}">
+      <i class="bi bi-people"></i><span>Khách hàng</span>
+    </a>
+    <a href="{{ url_for('tables.index') }}"
+       class="nav-link {% if request.blueprint == 'tables' %}active{% endif %}">
+      <i class="bi bi-layout-split"></i><span>Bàn ăn</span>
+    </a>
+    <a href="{{ url_for('menu.index') }}"
+       class="nav-link {% if request.blueprint == 'menu' %}active{% endif %}">
+      <i class="bi bi-journal-richtext"></i><span>Thực đơn</span>
+    </a>
+
+    <div class="nav-section">Nghiệp vụ</div>
+    <a href="{{ url_for('reservations.index') }}"
+       class="nav-link {% if request.blueprint == 'reservations' %}active{% endif %}">
+      <i class="bi bi-calendar-check"></i><span>Đặt bàn</span>
+    </a>
+    <a href="{{ url_for('invoices.index') }}"
+       class="nav-link {% if request.blueprint == 'invoices' %}active{% endif %}">
+      <i class="bi bi-receipt"></i><span>Hóa đơn</span>
+    </a>
+
+    <div class="nav-section">Phân tích</div>
+    <a href="{{ url_for('reports.revenue') }}"
+       class="nav-link {% if request.blueprint == 'reports' %}active{% endif %}">
+      <i class="bi bi-bar-chart-line"></i><span>Báo cáo</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">{{ session.full_name[0] if session.full_name else 'U' }}</div>
+    <div class="user-info">
+      <div class="user-name">{{ session.full_name }}</div>
+      <div class="user-role role-{{ session.role }}">{{ ui_labels.roles.get(session.role, session.role) }}</div>
+    </div>
+    <a href="{{ url_for('auth.logout') }}" class="logout-btn" title="Đăng xuất" aria-label="Đăng xuất">
+      <i class="bi bi-power"></i>
+    </a>
+  </div>
+</aside>
+
+<div class="main-wrap">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" onclick="toggleSidebar()" type="button" aria-label="Mở menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <div>
+        <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+        {% block page_intro %}{% endblock %}
+      </div>
+    </div>
+    <div class="topbar-actions">{% block topbar_actions %}{% endblock %}</div>
+  </header>
+
+  {% set flash_container_class = 'flash-zone' %}
+  {% include "components/flash_messages.html" %}
+
+  <main class="page-content">{% block content %}{% endblock %}</main>
+</div>
+
+{% else %}
+  {% block auth_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

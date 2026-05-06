@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_intro %}<p class="page-subtitle">Tổng hợp nhanh tình hình vận hành trong ngày.</p>{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('reservations.index') }}" class="btn btn-ghost">Đặt bàn</a>
+<a href="{{ url_for('reports.revenue') }}" class="btn btn-primary">Xem báo cáo</a>
+{% endblock %}
+
+{% block content %}
+<section class="stats-grid">
+  <article class="stat-card">
+    <div class="stat-head">
+      <span class="stat-label">Khách hàng</span>
+      <i class="bi bi-people stat-icon"></i>
+    </div>
+    <div class="stat-value">{{ stats.customers }}</div>
+    <p class="stat-meta">Tổng số khách đang lưu trong hệ thống.</p>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-head">
+      <span class="stat-label">Bàn trống</span>
+      <i class="bi bi-layout-split stat-icon"></i>
+    </div>
+    <div class="stat-value">{{ stats.tables_free }}</div>
+    <p class="stat-meta">Số bàn đang sẵn sàng phục vụ.</p>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-head">
+      <span class="stat-label">Đặt bàn hôm nay</span>
+      <i class="bi bi-calendar-check stat-icon"></i>
+    </div>
+    <div class="stat-value">{{ stats.reservations }}</div>
+    <p class="stat-meta">Các lượt đặt chưa bị hủy trong ngày.</p>
+  </article>
+
+  <article class="stat-card primary">
+    <div class="stat-head">
+      <span class="stat-label">Doanh thu hôm nay</span>
+      <i class="bi bi-cash-coin stat-icon"></i>
+    </div>
+    <div class="stat-value">{{ "{:,.0f}".format(stats.revenue_today or 0) }}</div>
+    <p class="stat-meta">Tổng tiền từ các hóa đơn đã thanh toán.</p>
+  </article>
+</section>
+
+<section class="content-grid">
+  <section class="panel panel hover">
+    <div class="panel-head">
+      <div>
+        <h2>Đặt bàn hôm nay</h2>
+        <p class="panel-subtitle">Theo dõi nhanh lịch bàn trong ngày.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Khách</th>
+            <th>Bàn</th>
+            <th>Thời gian</th>
+            <th>Số khách</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in today_res %}
+          <tr>
+            <td>{{ row.CustomerName }}</td>
+            <td>{{ row.TableNumber }}</td>
+            <td>{{ row.ReservationDate }}</td>
+            <td>{{ row.GuestCount }}</td>
+            <td><span class="status-pill status-{{ row.Status }}">{{ ui_labels.reservation_statuses.get(row.Status, row.Status) }}</span></td>
+          </tr>
+          {% else %}
+          <tr>
+  <td colspan="5">
+    <div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <p>Không có đặt bàn hôm nay</p>
+    </div>
+  </td>
+</tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Món bán chạy</h2>
+        <p class="panel-subtitle">Dựa trên hóa đơn đã thanh toán.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Món</th>
+            <th>Số lượng</th>
+            <th>Doanh thu</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in top_dishes %}
+          <tr>
+            <td>{{ row.DishName }}</td>
+            <td><strong>{{ row.TotalSold }}</strong></td>
+            <td>{{ "{:,.0f}".format(row.Revenue or 0) }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3">Chưa có dữ liệu hóa đơn đã thanh toán.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <h2>Doanh thu 7 ngày</h2>
+      <p class="panel-subtitle">Biến động doanh thu gần nhất theo ngày thanh toán.</p>
+    </div>
+  </div>
+  <div class="chart-shell chart-highlight">
+    <canvas id="revenueChart" height="110"></canvas>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const revenue7d = {{ revenue_7d|tojson }};
+const revenueLabels = revenue7d.map((row) => row.d);
+const revenueValues = revenue7d.map((row) => row.r);
+
+if (document.getElementById("revenueChart")) {
+  new Chart(document.getElementById("revenueChart"), {
+    type: "line",
+    data: {
+      labels: revenueLabels,
+      datasets: [{
+        label: "Doanh thu",
+        data: revenueValues,
+        borderColor: "#2563eb",
+        backgroundColor: "rgba(37, 99, 235, 0.12)",
+        fill: true,
+        tension: 0.3,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: "rgba(148, 163, 184, 0.18)" } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+</script>
+{% endblock %}

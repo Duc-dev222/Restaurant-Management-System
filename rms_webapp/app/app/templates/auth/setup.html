@@ -1,0 +1,66 @@
+{% extends "auth/_layout.html" %}
+
+{% block auth_title %}Thiết lập tài khoản{% endblock %}
+{% block auth_heading %}Khởi tạo lại tài khoản mặc định một cách an toàn{% endblock %}
+{% block auth_description %}Màn này dùng để ghi lại password hash thật cho các user seed và đồng bộ vai trò truy cập ban đầu.{% endblock %}
+{% block auth_panel_title %}Thiết lập tài khoản hệ thống{% endblock %}
+
+{% block auth_notes %}
+<div class="note-card">
+  <i class="bi bi-key"></i>
+  <div>
+    <strong>Thiết lập lại mật khẩu mặc định</strong>
+    <p>Hệ thống sẽ cập nhật lại hash cho các user seed nếu dữ liệu đang dùng placeholder.</p>
+  </div>
+</div>
+<div class="note-card">
+  <i class="bi bi-person-badge"></i>
+  <div>
+    <strong>Tạo sẵn các vai trò cơ bản</strong>
+    <p>Admin, cashier và waiter được nạp sẵn để bạn kiểm tra luồng đăng nhập nhanh.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block auth_panel_hint %}
+<p>Nhap mat khau moi de tao hash cho cac tai khoan seed.</p>
+{% endblock %}
+
+{% block auth_body %}
+{% if has_placeholders %}
+<div class="inline-banner warning">
+  <i class="bi bi-exclamation-triangle"></i>
+  <div>
+    <strong>Phát hiện password hash tạm</strong>
+    <p>Dữ liệu seed hiện tại vẫn đang dùng giá trị placeholder và nên được cập nhật.</p>
+  </div>
+</div>
+{% else %}
+<div class="inline-banner info">
+  <i class="bi bi-info-circle"></i>
+  <div>
+    <strong>Có thể chạy setup lại</strong>
+    <p>Nếu cần đồng bộ lại user mặc định, thao tác này sẽ cập nhật trên các tài khoản hiện có.</p>
+  </div>
+</div>
+{% endif %}
+
+<form method="post" class="auth-form">
+  <label>
+    <span>Mat khau moi</span>
+    <input class="input" type="password" name="password" autocomplete="new-password" minlength="8" placeholder="Toi thieu 8 ky tu" required>
+  </label>
+  <label>
+    <span>Xac nhan mat khau</span>
+    <input class="input" type="password" name="password_confirm" autocomplete="new-password" minlength="8" placeholder="Nhap lai mat khau" required>
+  </label>
+  <button type="submit" class="btn btn-primary btn-block">Tạo hoặc cập nhật user mặc định</button>
+</form>
+{% endblock %}
+
+{% block auth_footer %}
+<div class="auth-footer-row">
+  <span>Quay lại màn đăng nhập</span>
+  <a href="{{ url_for('auth.login') }}">Đăng nhập</a>
+</div>
+{% endblock %}

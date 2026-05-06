@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block body_class %}auth-page login-page{% endblock %}
+{% block title %}{% block auth_title %}Xác thực{% endblock %}{% endblock %}
+
+{% block auth_content %}
+<div class="login-background"></div>
+
+<main class="auth-shell">
+  <section class="auth-stage">
+    <aside class="auth-side">
+      <div class="auth-side-mark">
+        <span class="auth-kicker">{% block auth_kicker %}RestaurantMS{% endblock %}</span>
+        <h1>{% block auth_heading %}{% endblock %}</h1>
+        <p>{% block auth_description %}{% endblock %}</p>
+      </div>
+
+      <div class="auth-side-notes">
+        {% block auth_notes %}{% endblock %}
+      </div>
+    </aside>
+
+    <section class="auth-panel">
+      {% set flash_container_class = 'auth-flash-list' %}
+      {% include "components/flash_messages.html" %}
+
+      <div class="auth-panel-head">
+        <h2>{% block auth_panel_title %}{% endblock %}</h2>
+        {% block auth_panel_hint %}{% endblock %}
+      </div>
+
+      <div class="auth-panel-body">
+        {% block auth_body %}{% endblock %}
+      </div>
+
+      <div class="auth-panel-foot">
+        {% block auth_footer %}{% endblock %}
+      </div>
+    </section>
+  </section>
+</main>
+{% endblock %}

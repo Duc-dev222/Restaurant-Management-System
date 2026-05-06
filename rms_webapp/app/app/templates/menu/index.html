@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Thực đơn{% endblock %}
+{% block page_title %}Thực đơn{% endblock %}
+{% block page_intro %}<p class="page-subtitle">Quan sát cơ cấu món, biến thể, giá bán và tình trạng sẵn sàng phục vụ.</p>{% endblock %}
+
+{% block content %}
+<section class="stats-grid">
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Tổng món</span><i class="bi bi-journal-richtext stat-icon"></i></div>
+    <div class="stat-value">{{ stats.total_items }}</div>
+    <p class="stat-meta">Số món gốc hiện có trong hệ thống.</p>
+  </article>
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Đang bán</span><i class="bi bi-check2-circle stat-icon"></i></div>
+    <div class="stat-value">{{ stats.available }}</div>
+    <p class="stat-meta">Món có thể gọi ngay lúc này.</p>
+  </article>
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Nhóm món</span><i class="bi bi-tags stat-icon"></i></div>
+    <div class="stat-value">{{ stats.categories }}</div>
+    <p class="stat-meta">Số danh mục đang được sử dụng.</p>
+  </article>
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Giá TB</span><i class="bi bi-cash-stack stat-icon"></i></div>
+    <div class="stat-value">{{ "{:,.0f}".format(stats.avg_price or 0) }}</div>
+    <p class="stat-meta">Giá trung bình trên một món.</p>
+  </article>
+</section>
+
+<section class="panel menu-panel">
+    <div class="panel-head">
+      <div>
+        <h2>Danh sách món</h2>
+        <p class="panel-subtitle">Lọc theo danh mục, tình trạng bán và tên món.</p>
+      </div>
+    </div>
+
+    <form method="get" action="{{ url_for('menu.index') }}" class="toolbar">
+      <input class="input input-search" type="text" name="q" value="{{ filters.q }}" placeholder="Tìm theo tên món">
+      <select class="input input-compact" name="category">
+        <option value="">Tất cả danh mục</option>
+        {% for row in categories %}
+        <option value="{{ row.CategoryID }}" {% if filters.category == row.CategoryID|string %}selected{% endif %}>{{ row.CategoryName }}</option>
+        {% endfor %}
+      </select>
+      <select class="input input-compact" name="availability">
+        <option value="">Tất cả tình trạng</option>
+        <option value="available" {% if filters.availability == 'available' %}selected{% endif %}>{{ ui_labels.menu_availability.get('available') }}</option>
+        <option value="unavailable" {% if filters.availability == 'unavailable' %}selected{% endif %}>{{ ui_labels.menu_availability.get('unavailable') }}</option>
+      </select>
+      <button class="btn" type="submit">Lọc</button>
+      <a class="btn btn-ghost" href="{{ url_for('menu.index') }}">Đặt lại</a>
+    </form>
+
+    <div class="dish-card-grid">
+      {% for row in items %}
+      <article class="dish-card">
+        <img
+          src="{{ url_for('static', filename='images/dishes/' ~ row.Image) }}"
+          class="dish-card-img"
+          alt="{{ row.DishName }}"
+        >
+        <div class="dish-card-body">
+          <div class="dish-card-head">
+            <div>
+              <h3>{{ row.DishName }}</h3>
+              <p>{{ row.CategoryName }}</p>
+            </div>
+            {% if row.IsAvailable %}
+            <span class="status-pill status-available">{{ ui_labels.menu_availability.get('available') }}</span>
+            {% else %}
+            <span class="status-pill status-maintenance">{{ ui_labels.menu_availability.get('unavailable') }}</span>
+            {% endif %}
+          </div>
+          <dl class="dish-card-meta">
+            <div>
+              <dt>Giá</dt>
+              <dd>{{ row.PriceText }}</dd>
+            </div>
+            <div>
+              <dt>Options</dt>
+              <dd>{{ row.VariantCount }}</dd>
+            </div>
+            <div>
+              <dt>Đã bán</dt>
+              <dd>{{ row.TotalSold }}</dd>
+            </div>
+          </dl>
+        </div>
+      </article>
+      {% else %}
+      <div class="empty-state empty-state-inline">
+        <h2>Không có món phù hợp</h2>
+        <p>Thử đổi từ khóa, danh mục hoặc tình trạng bán.</p>
+      </div>
+      {% endfor %}
+    </div>
+</section>
+{% endblock %}

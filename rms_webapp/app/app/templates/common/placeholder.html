@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_intro %}<p class="page-subtitle">Màn này đã được nối route, hiện còn ở mức khung làm việc.</p>{% endblock %}
+
+{% block content %}
+<section class="panel placeholder-panel">
+  <div class="empty-state">
+    <div class="empty-icon"><i class="bi bi-tools"></i></div>
+    <h2>{{ title }}</h2>
+    <p>Phần giao diện này đã có chỗ đứng trong cấu trúc Flask app. Bước tiếp theo là thay khung tạm bằng màn nghiệp vụ hoàn chỉnh.</p>
+  </div>
+</section>
+{% endblock %}

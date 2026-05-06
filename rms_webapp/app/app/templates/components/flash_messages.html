@@ -1,0 +1,13 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="{{ flash_container_class|default('flash-zone') }}">
+  {% for cat, msg in messages %}
+  <div class="flash flash-{{ cat }}" data-flash>
+    <i class="bi bi-{% if cat == 'success' %}check-circle{% elif cat == 'danger' %}x-circle{% elif cat == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+    <span>{{ msg }}</span>
+    <button type="button" class="flash-close" onclick="this.parentElement.remove()" aria-label="Đóng thông báo">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}

@@ -1,0 +1,48 @@
+{% extends "auth/_layout.html" %}
+
+{% block auth_title %}Đăng nhập{% endblock %}
+{% block auth_heading %}Quản lý vận hành nhà hàng trong một nơi duy nhất{% endblock %}
+{% block auth_description %}Theo dõi khách hàng, đặt bàn, hóa đơn và các chỉ số bán hàng từ cùng một giao diện làm việc.{% endblock %}
+{% block auth_panel_title %}Đăng nhập hệ thống{% endblock %}
+
+{% block auth_notes %}
+<div class="note-card">
+  <i class="bi bi-shield-check"></i>
+  <div>
+    <strong>Đăng nhập theo vai trò</strong>
+    <p>Quyền truy cập được tách theo tài khoản để giữ luồng vận hành rõ ràng.</p>
+  </div>
+</div>
+<div class="note-card">
+  <i class="bi bi-lightning-charge"></i>
+  <div>
+    <strong>Truy cập nhanh các màn chính</strong>
+    <p>Sau khi đăng nhập bạn đi thẳng vào dashboard và các màn nghiệp vụ.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block auth_panel_hint %}
+<p>Dùng tài khoản đã được setup trong cơ sở dữ liệu.</p>
+{% endblock %}
+
+{% block auth_body %}
+<form method="post" class="auth-form">
+  <label>
+    <span>Tên đăng nhập</span>
+    <input class="input" type="text" name="username" autocomplete="username" placeholder="Nhap ten dang nhap..." required>
+  </label>
+  <label>
+    <span>Mật khẩu</span>
+    <input class="input" type="password" name="password" autocomplete="current-password" placeholder="Nhap mat khau..." required>
+  </label>
+  <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+</form>
+{% endblock %}
+
+{% block auth_footer %}
+<div class="auth-footer-row">
+  <span>Chưa khởi tạo tài khoản mặc định?</span>
+  <a href="{{ url_for('auth.setup') }}">Mở trang setup</a>
+</div>
+{% endblock %}

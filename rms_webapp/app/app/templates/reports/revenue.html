@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Báo cáo{% endblock %}
+{% block page_title %}Báo cáo{% endblock %}
+{% block page_intro %}<p class="page-subtitle">Tổng hợp doanh thu, món bán chạy và hiệu suất nghiệp vụ theo khoảng thời gian.</p>{% endblock %}
+
+{% block topbar_actions %}
+<form method="get" class="toolbar">
+  <select class="input input-compact" name="days">
+    {% for value in ['7', '30', '90'] %}
+    <option value="{{ value }}" {% if days == value %}selected{% endif %}>{{ value }} ngày</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-primary" type="submit">Cập nhật</button>
+</form>
+{% endblock %}
+
+{% block content %}
+<section class="stats-grid">
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Doanh thu đã thanh toán</span><i class="bi bi-currency-dollar stat-icon"></i></div>
+    <div class="stat-value">{{ "{:,.0f}".format(summary.paid_revenue or 0) }}</div>
+    <p class="stat-meta">Tổng doanh thu đã thanh toán trong {{ days }} ngày gần nhất.</p>
+  </article>
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Tổng hóa đơn</span><i class="bi bi-receipt stat-icon"></i></div>
+    <div class="stat-value">{{ summary.invoice_count }}</div>
+    <p class="stat-meta">Hóa đơn đã phát sinh trong {{ days }} ngày gần nhất.</p>
+  </article>
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Giá trị trung bình</span><i class="bi bi-bar-chart stat-icon"></i></div>
+    <div class="stat-value">{{ "{:,.0f}".format(summary.avg_paid_invoice or 0) }}</div>
+    <p class="stat-meta">Giá trị trung bình của hóa đơn đã thanh toán trong {{ days }} ngày.</p>
+  </article>
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Khách hàng hoạt động</span><i class="bi bi-people stat-icon"></i></div>
+    <div class="stat-value">{{ summary.active_customers }}</div>
+    <p class="stat-meta">Khách có hóa đơn đã thanh toán trong {{ days }} ngày gần nhất.</p>
+  </article>
+</section>
+
+<section class="content-grid">
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Doanh thu theo ngày</h2>
+        <p class="panel-subtitle">Dữ liệu thanh toán trong {{ days }} ngày gần nhất.</p>
+      </div>
+    </div>
+    <div class="chart-shell">
+      <canvas id="revenueTrendChart" height="120"></canvas>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Cơ cấu thanh toán</h2>
+        <p class="panel-subtitle">So sánh tổng doanh thu theo phương thức thanh toán.</p>
+      </div>
+    </div>
+    <div class="chart-shell">
+      <canvas id="paymentMethodChart" height="120"></canvas>
+    </div>
+  </section>
+</section>
+
+<section class="content-grid">
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Top món theo doanh thu</h2>
+        <p class="panel-subtitle">Món đóng góp doanh thu cao nhất trong {{ days }} ngày.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Món</th>
+            <th>Số lượng</th>
+            <th>Doanh thu</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in top_dishes %}
+          <tr>
+            <td>{{ row.DishName }}</td>
+            <td>{{ row.quantity_sold }}</td>
+            <td>{{ "{:,.0f}".format(row.revenue or 0) }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3">Không có dữ liệu món bán.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Trạng thái đặt bàn</h2>
+        <p class="panel-subtitle">Tổng hợp trạng thái đặt bàn trong {{ days }} ngày.</p>
+      </div>
+    </div>
+    <div class="stack-list">
+      {% for row in reservation_status %}
+      <div class="stack-row">
+        <div>
+          <strong>{{ ui_labels.reservation_statuses.get(row.Status, row.Status) }}</strong>
+          <p>{{ row.c }} lượt</p>
+        </div>
+        <span class="status-pill status-{{ row.Status }}">{{ ui_labels.reservation_statuses.get(row.Status, row.Status) }}</span>
+      </div>
+      {% else %}
+      <p>Không có dữ liệu đặt bàn.</p>
+      {% endfor %}
+    </div>
+  </section>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const revenueSeries = {{ revenue_series|tojson }};
+const paymentSeries = {{ payment_method_series|tojson }};
+
+const revenueLabels = revenueSeries.map((row) => row.label);
+const revenueValues = revenueSeries.map((row) => row.amount);
+const paymentLabels = paymentSeries.map((row) => row.PaymentMethod);
+const paymentValues = paymentSeries.map((row) => row.amount);
+
+if (document.getElementById("revenueTrendChart")) {
+  new Chart(document.getElementById("revenueTrendChart"), {
+    type: "line",
+    data: {
+      labels: revenueLabels,
+      datasets: [{
+        label: "Doanh thu",
+        data: revenueValues,
+        borderColor: "#2563eb",
+        backgroundColor: "rgba(37, 99, 235, 0.12)",
+        fill: true,
+        tension: 0.25,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: "rgba(148, 163, 184, 0.18)" } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+if (document.getElementById("paymentMethodChart")) {
+  new Chart(document.getElementById("paymentMethodChart"), {
+    type: "doughnut",
+    data: {
+      labels: paymentLabels,
+      datasets: [{
+        data: paymentValues,
+        backgroundColor: ["#2563eb", "#0f9f6e", "#d97706", "#7c3aed"]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+}
+</script>
+{% endblock %}

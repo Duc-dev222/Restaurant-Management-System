@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{% if action == 'edit' %}Sửa khách hàng{% else %}Thêm khách hàng{% endif %}{% endblock %}
+{% block page_title %}{% if action == "edit" %}Sửa khách hàng{% else %}Thêm khách hàng{% endif %}{% endblock %}
+{% block page_intro %}<p class="page-subtitle">Điền thông tin liên hệ để gắn với đặt bàn và hóa đơn.</p>{% endblock %}
+
+{% block content %}
+<section class="panel panel-form">
+  <div class="panel-head">
+    <div>
+      <h2>{% if action == "edit" %}Thông tin khách hàng{% else %}Hồ sơ khách hàng mới{% endif %}</h2>
+      <p class="panel-subtitle">Số điện thoại được dùng làm khóa tra cứu nhanh khi thao tác nghiệp vụ.</p>
+    </div>
+  </div>
+
+  <form method="post" class="form-grid">
+    <label>
+      <span>Tên khách hàng</span>
+      <input class="input" type="text" name="name" required value="{{ customer.CustomerName if customer else '' }}">
+    </label>
+    <label>
+      <span>Số điện thoại</span>
+      <input class="input" type="text" name="phone" required value="{{ customer.PhoneNumber if customer else '' }}">
+    </label>
+    <label>
+      <span>Email</span>
+      <input class="input" type="email" name="email" value="{{ customer.Email if customer else '' }}">
+    </label>
+    <label class="full-row">
+      <span>Địa chỉ</span>
+      <textarea class="input" name="address" rows="4">{{ customer.Address if customer else '' }}</textarea>
+    </label>
+    <div class="form-actions full-row">
+      <button class="btn btn-primary" type="submit">Lưu</button>
+      <a class="btn btn-ghost" href="{{ url_for('customers.index') }}">Hủy</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

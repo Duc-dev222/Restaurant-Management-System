@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Chi tiết khách hàng{% endblock %}
+{% block page_title %}Chi tiết khách hàng{% endblock %}
+{% block page_intro %}<p class="page-subtitle">Theo dõi thông tin chính, hóa đơn và lịch sử đặt bàn của khách.</p>{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('customers.edit', cid=customer.CustomerID) }}" class="btn">Sửa thông tin</a>
+{% endblock %}
+
+{% block content %}
+<section class="detail-grid">
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Thông tin chung</h2>
+        <p class="panel-subtitle">Dữ liệu hồ sơ đang gắn với các màn đặt bàn và hóa đơn.</p>
+      </div>
+    </div>
+    <dl class="detail-list">
+      <div><dt>ID</dt><dd>{{ customer.CustomerID }}</dd></div>
+      <div><dt>Tên</dt><dd>{{ customer.CustomerName }}</dd></div>
+      <div><dt>Số điện thoại</dt><dd>{{ customer.PhoneNumber }}</dd></div>
+      <div><dt>Email</dt><dd>{{ customer.Email or "" }}</dd></div>
+      <div><dt>Địa chỉ</dt><dd>{{ customer.Address or "" }}</dd></div>
+      <div><dt>Tổng chi tiêu</dt><dd>{{ "{:,.0f}".format(total_spent or 0) }}</dd></div>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Hóa đơn gần đây</h2>
+        <p class="panel-subtitle">Hiển thị 10 hóa đơn mới nhất của khách này.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Invoice ID</th>
+            <th>Bàn</th>
+            <th>Ngày</th>
+            <th>Trạng thái</th>
+            <th>Tổng tiền</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in invoices %}
+          <tr>
+            <td>{{ row.InvoiceID }}</td>
+            <td>{{ row.TableNumber }}</td>
+            <td>{{ row.PaymentDate }}</td>
+            <td><span class="status-pill status-{{ row.Status }}">{{ ui_labels.invoice_statuses.get(row.Status, row.Status) }}</span></td>
+            <td>{{ "{:,.0f}".format(row.TotalAmount or 0) }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5">Không có hóa đơn.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <h2>Lịch sử đặt bàn</h2>
+      <p class="panel-subtitle">Hiển thị 10 lượt đặt bàn gần nhất của khách hàng.</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Reservation ID</th>
+          <th>Bàn</th>
+          <th>Ngày</th>
+          <th>Số khách</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in reservations %}
+        <tr>
+          <td>{{ row.ReservationID }}</td>
+          <td>{{ row.TableNumber }}</td>
+          <td>{{ row.ReservationDate }}</td>
+          <td>{{ row.GuestCount }}</td>
+          <td><span class="status-pill status-{{ row.Status }}">{{ ui_labels.reservation_statuses.get(row.Status, row.Status) }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">Không có đặt bàn.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

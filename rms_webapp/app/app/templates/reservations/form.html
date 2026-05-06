@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Tạo đặt bàn{% endblock %}
+{% block page_title %}Tạo đặt bàn{% endblock %}
+{% block page_intro %}<p class="page-subtitle">Chọn khách, thời gian và bàn còn trống để ghi nhận lượt đặt mới.</p>{% endblock %}
+
+{% block content %}
+<section class="page-stack">
+  <section class="panel panel-form">
+    <div class="panel-head">
+      <div>
+        <h2>Thông tin đặt bàn</h2>
+        <p class="panel-subtitle">Bàn được xem là trùng lịch nếu đã có lượt pending hoặc confirmed trong vòng 2 giờ.</p>
+      </div>
+    </div>
+
+    <form method="get" action="{{ url_for('reservations.add') }}" class="form-grid booking-lookup-form">
+      <label>
+        <span>Thời gian</span>
+        <input class="input" type="datetime-local" name="reservation_date" value="{{ form.reservation_date }}" required>
+      </label>
+      <label>
+        <span>Số khách</span>
+        <input class="input" type="number" name="guest_count" min="1" value="{{ form.guest_count }}" required>
+      </label>
+      <label>
+        <span>Tầng / Khu vực</span>
+        <select class="input" name="level">
+          {% for key, label, start, end in table_levels %}
+          <option value="{{ key }}" {% if form.level == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <div class="form-actions booking-lookup-actions">
+        <button class="btn" type="submit">Tìm bàn trống</button>
+      </div>
+    </form>
+  </section>
+
+  <form method="post" class="panel">
+    <input type="hidden" name="reservation_date" value="{{ form.reservation_date }}">
+    <input type="hidden" name="guest_count" value="{{ form.guest_count }}">
+    <input type="hidden" name="level" value="{{ form.level }}">
+
+    <div class="panel-head">
+      <div>
+        <h2>Khách và bàn</h2>
+        <p class="panel-subtitle">Có thể chọn khách có sẵn hoặc nhập nhanh khách mới bằng tên và số điện thoại.</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <label>
+        <span>Khách có sẵn</span>
+        <select class="input" name="customer_id">
+          <option value="">Nhập khách mới</option>
+          {% for customer in customers %}
+          <option value="{{ customer.CustomerID }}" {% if form.customer_id == customer.CustomerID|string %}selected{% endif %}>
+            {{ customer.CustomerName }} - {{ customer.PhoneNumber }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Trạng thái</span>
+        <select class="input" name="status">
+          <option value="confirmed" {% if form.status == 'confirmed' %}selected{% endif %}>Xác nhận ngay</option>
+          <option value="pending" {% if form.status == 'pending' %}selected{% endif %}>Chờ xác nhận</option>
+        </select>
+      </label>
+      <label>
+        <span>Tên khách mới</span>
+        <input class="input" type="text" name="customer_name" value="{{ form.customer_name }}" placeholder="Dùng khi không chọn khách có sẵn">
+      </label>
+      <label>
+        <span>Số điện thoại mới</span>
+        <input class="input" type="text" name="phone" value="{{ form.phone }}" placeholder="Dùng khi không chọn khách có sẵn">
+      </label>
+    </div>
+
+    <div class="table-choice-grid">
+      {% for row in available_tables %}
+      <label class="table-choice">
+        <input type="radio" name="table_id" value="{{ row.TableID }}" {% if form.table_id == row.TableID|string %}checked{% endif %} required>
+        <span>
+          <strong>Bàn #{{ row.TableNumber }}</strong>
+          <small>{{ row.LevelName }} · {{ row.Capacity }} khách</small>
+        </span>
+      </label>
+      {% else %}
+      <div class="empty-state empty-state-inline">
+        <h2>Không có bàn trống</h2>
+        <p>Thử đổi thời gian, số khách hoặc tầng/khu vực.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="form-actions booking-submit-actions">
+      <button class="btn btn-primary" type="submit" {% if not available_tables %}disabled{% endif %}>Tạo đặt bàn</button>
+      <a class="btn btn-ghost" href="{{ url_for('reservations.index') }}">Hủy</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

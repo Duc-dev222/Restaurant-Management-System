@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Bàn ăn{% endblock %}
+{% block page_title %}Bàn ăn{% endblock %}
+{% block page_intro %}<p class="page-subtitle">Theo dõi sức chứa, vị trí và tình trạng khai thác từng bàn.</p>{% endblock %}
+
+{% block content %}
+<section class="stats-grid">
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Tổng số bàn</span><i class="bi bi-grid stat-icon"></i></div>
+    <div class="stat-value">{{ stats.total }}</div>
+    <p class="stat-meta">Tất cả bàn đang có trong nhà hàng.</p>
+  </article>
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Sẵn sàng</span><i class="bi bi-check2-circle stat-icon"></i></div>
+    <div class="stat-value">{{ stats.available }}</div>
+    <p class="stat-meta">Bàn có thể xếp khách ngay.</p>
+  </article>
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Đang phục vụ</span><i class="bi bi-cup-hot stat-icon"></i></div>
+    <div class="stat-value">{{ stats.occupied }}</div>
+    <p class="stat-meta">Bàn đang ở trạng thái phục vụ.</p>
+  </article>
+  <article class="stat-card">
+    <div class="stat-head"><span class="stat-label">Bảo trì</span><i class="bi bi-tools stat-icon"></i></div>
+    <div class="stat-value">{{ stats.maintenance }}</div>
+    <p class="stat-meta">Bàn đang tạm dừng khai thác.</p>
+  </article>
+</section>
+
+<section class="page-stack">
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Sơ đồ bàn</h2>
+        <p class="panel-subtitle">Chọn tầng hoặc khu vực để xem nhanh bàn trống và bàn không còn trống.</p>
+      </div>
+    </div>
+
+    <form method="get" action="{{ url_for('tables.index') }}" class="toolbar table-map-toolbar">
+      <select class="input input-compact" name="level">
+        {% for key, label, start, end in table_levels %}
+        <option value="{{ key }}" {% if filters.level == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn" type="submit">Hiển thị</button>
+      <div class="table-map-summary">
+        <span class="status-dot status-dot-available"></span> Trống: {{ level_stats.available }}
+        <span class="status-dot status-dot-unavailable"></span> Không trống: {{ level_stats.unavailable }}
+      </div>
+    </form>
+
+    <div class="table-map">
+      {% for row in level_tables %}
+      <article class="table-tile table-tile-{{ row.Status }}">
+        <strong>{{ row.TableNumber }}</strong>
+        <span>{{ selected_level.label }}</span>
+      </article>
+      {% else %}
+      <p>Không có bàn trong khu vực này.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head panel-head-stack">
+      <div>
+        <h2>Danh sách bàn</h2>
+        <p class="panel-subtitle">Lọc theo trạng thái, tầng/khu vực hoặc số bàn.</p>
+      </div>
+    </div>
+
+    <form method="get" action="{{ url_for('tables.index') }}" class="toolbar">
+      <input class="input input-search" type="text" name="q" value="{{ filters.q }}" placeholder="Tìm theo số bàn">
+      <select class="input input-compact" name="status">
+        <option value="">Tất cả trạng thái</option>
+        {% for value in ['available', 'reserved', 'occupied', 'maintenance'] %}
+        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ ui_labels.table_statuses.get(value, value) }}</option>
+        {% endfor %}
+      </select>
+      <select class="input input-compact" name="level">
+        {% for key, label, start, end in table_levels %}
+        <option value="{{ key }}" {% if filters.level == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn" type="submit">Lọc</button>
+      <a class="btn btn-ghost" href="{{ url_for('tables.index') }}">Đặt lại</a>
+    </form>
+
+    <div class="table-wrap collapsible-list is-collapsed" data-collapsible-list data-visible-count="12">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Số bàn</th>
+            <th>Sức chứa</th>
+            <th>Trạng thái</th>
+            <th>Tầng / Khu vực</th>
+            <th>Đặt bàn sắp tới</th>
+            <th>Lần đặt gần nhất</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in tables %}
+          <tr>
+            <td>#{{ row.TableNumber }}</td>
+            <td>{{ row.Capacity }}</td>
+            <td><span class="status-pill status-{{ row.Status }}">{{ ui_labels.table_statuses.get(row.Status, row.Status) }}</span></td>
+            <td>{{ row.LevelName }}</td>
+            <td>{{ row.upcoming_reservations }}</td>
+            <td>{{ row.last_reservation or "" }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6">Không có dữ liệu bàn phù hợp bộ lọc.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <button class="btn btn-ghost list-toggle" type="button" data-list-toggle>Xem thêm</button>
+  </section>
+</section>
+{% endblock %}
