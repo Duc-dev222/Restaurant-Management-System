@@ -12,7 +12,7 @@
 
 **Student ID:** 11245860.  
 
-**Class:** DSEB 66.  
+**Class:** DSEB 66B.  
 
 **GitHub Repository:** https://github.com/Duc-dev222/Restaurant-Management-System.  
 
