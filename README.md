@@ -16,7 +16,7 @@
 
 **GitHub Repository:** https://github.com/Duc-dev222/Restaurant-Management-System.  
 
-**YouTube Presentation:** *(to be added before submission)*.
+**YouTube Presentation:** *[(to be added before submission)](https://www.youtube.com/watch?v=Ytwg3INCCEg)*.
 
 ---
 
