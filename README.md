@@ -69,12 +69,13 @@ The project is built with **Python, Flask, MySQL, and Bootstrap**. It demonstrat
 | `admin` | Full access including customer deletion and user setup. |
 | `cashier` | Access to invoices, customers (read/add/edit), reservations, and menu viewing. |
 | `waiter` | Access to reservations, table status updates, and menu viewing. |
+- Role-based access is enforced at the route level. The admin role has exclusive access to destructive operations such as customer deletion. Other protected routes use login_required to restrict access to authenticated staff regardless of role.
 
 ### 📊 Dashboard
 
 - Four summary cards: total customers, available tables, today's reservations, today's revenue.
 - Revenue falls back to the most recent active day if no transactions exist today.
-- Top 5 best-selling dishes ranked by quantity sold (powered by `v_top_selling_dishes` view).
+- Top 5 best-selling dishes ranked by quantity sold.
 - 7-day daily revenue bar chart.
 - Today's upcoming reservation list.
 
